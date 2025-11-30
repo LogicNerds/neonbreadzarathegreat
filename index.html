@@ -43,10 +43,15 @@
         }
 
         .screen.active {
+            display: block;
+        }
+
+        .screen-content {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            min-height: 100%;
         }
 
         .title {
@@ -264,46 +269,54 @@
     <div id="app">
         <!-- INTRO SCREEN -->
         <div id="introScreen" class="screen active">
-            <h1 class="title">ZARA THE GREAT</h1>
-            <p class="subtitle">Sit down, my child. Let's see how your 2026 will go.</p>
-            <button class="btn" onclick="startReading()">Begin Reading</button>
+            <div class="screen-content">
+                <h1 class="title">ZARA THE GREAT</h1>
+                <p class="subtitle">Sit down, my child. Let's see how your 2026 will go.</p>
+                <button class="btn" onclick="startReading()">Begin Reading</button>
+            </div>
         </div>
 
         <!-- QUESTION SCREEN -->
         <div id="questionScreen" class="screen">
-            <div class="question-container">
-                <div class="question-counter" id="questionCounter"></div>
-                <div class="question-text" id="questionText"></div>
-                <div class="answers" id="answersContainer"></div>
+            <div class="screen-content">
+                <div class="question-container">
+                    <div class="question-counter" id="questionCounter"></div>
+                    <div class="question-text" id="questionText"></div>
+                    <div class="answers" id="answersContainer"></div>
+                </div>
             </div>
         </div>
 
         <!-- CARD REVEAL SCREEN -->
         <div id="cardScreen" class="screen">
-            <div class="card-display">
-                <div class="card" id="cardElement">
-                    <div class="card-face card-back">
-                        <img src="https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/Cardback.png" class="card-image" alt="Card Back">
-                    </div>
-                    <div class="card-face card-front" id="cardFront">
-                        <img id="cardFrontImage" src="" class="card-image" alt="Card">
-                        <div class="card-title" id="cardTitle"></div>
-                        <div class="card-tagline" id="cardTagline"></div>
+            <div class="screen-content">
+                <div class="card-display">
+                    <div class="card" id="cardElement">
+                        <div class="card-face card-back">
+                            <img src="https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/Cardback.png" class="card-image" alt="Card Back">
+                        </div>
+                        <div class="card-face card-front" id="cardFront">
+                            <img id="cardFrontImage" src="" class="card-image" alt="Card">
+                            <div class="card-title" id="cardTitle"></div>
+                            <div class="card-tagline" id="cardTagline"></div>
+                        </div>
                     </div>
                 </div>
+                <div class="dialogue-box" id="dialogueBox" style="display: none;">
+                    <div class="dialogue-name">ZARA THE GREAT</div>
+                    <div class="dialogue-text" id="dialogueText"></div>
+                </div>
+                <button class="btn" id="cardActionBtn" onclick="cardAction()" style="display: none;"></button>
             </div>
-            <div class="dialogue-box" id="dialogueBox" style="display: none;">
-                <div class="dialogue-name">ZARA THE GREAT</div>
-                <div class="dialogue-text" id="dialogueText"></div>
-            </div>
-            <button class="btn" id="cardActionBtn" onclick="cardAction()" style="display: none;"></button>
         </div>
 
         <!-- FINAL READING SCREEN -->
         <div id="finalScreen" class="screen">
-            <h2 class="title">YOUR 2026 READING</h2>
-            <div class="reading-text" id="finalReading"></div>
-            <button class="btn" onclick="restart()">Face 2026 Again</button>
+            <div class="screen-content">
+                <h2 class="title">YOUR 2026 READING</h2>
+                <div class="reading-text" id="finalReading"></div>
+                <button class="btn" onclick="restart()">Face 2026 Again</button>
+            </div>
         </div>
     </div>
 
