@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZARA THE GREAT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #1a0f2e;
+            font-family: 'Press Start 2P', monospace;
+            color: #e0d4ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #gameCanvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 32px;
+            color: #ff6b9d;
+            text-shadow: 2px 2px #4a0e4e;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #b8a4d4;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+
+        .btn {
+            background: #5d3a8f;
+            color: #fff;
+            border: 3px solid #8b5fbf;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: 'Press Start 2P', monospace;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 4px 4px #2a1347;
+            transition: all 0.1s;
+        }
+
+        .btn:hover {
+            background: #7d5aaf;
+            transform: translate(1px, 1px);
+            box-shadow: 3px 3px #2a1347;
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px #2a1347;
+        }
+
+        .question-container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .question-text {
+            font-size: 20px;
+            color: #ff6b9d;
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .question-counter {
+            font-size: 14px;
+            color: #8b5fbf;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .answer-btn {
+            background: #2a1347;
+            color: #b8a4d4;
+            border: 2px solid #5d3a8f;
+            padding: 15px 20px;
+            font-size: 14px;
+            font-family: 'Press Start 2P', monospace;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.1s;
+            line-height: 1.4;
+        }
+
+        .answer-btn:hover {
+            background: #3d1f5f;
+            border-color: #8b5fbf;
+            color: #e0d4ff;
+        }
+
+        .card-display {
+            perspective: 1000px;
+            margin: 30px 0;
+        }
+
+        .card {
+            width: 200px;
+            height: 320px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border: 3px solid #8b5fbf;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #2a1347;
+        }
+
+        .card-back {
+            background: #4a0e4e;
+        }
+
+        .card-front {
+            transform: rotateY(180deg);
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            color: #ff6b9d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .card-tagline {
+            font-size: 12px;
+            color: #b8a4d4;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .card-image {
+            width: 150px;
+            height: 200px;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .dialogue-box {
+            background: #2a1347;
+            border: 3px solid #8b5fbf;
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .dialogue-name {
+            color: #ff6b9d;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .dialogue-text {
+            color: #e0d4ff;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .reading-text {
+            background: #2a1347;
+            border: 2px solid #5d3a8f;
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 600px;
+            width: 100%;
+            color: #b8a4d4;
+            font-size: 14px;
+            line-height: 1.8;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .reading-text p {
+            margin-bottom: 15px;
+        }
+
+        .reading-text strong {
+            color: #ff6b9d;
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 24px;
+            }
+            .question-text {
+                font-size: 18px;
+            }
+            .answer-btn {
+                font-size: 13px;
+                padding: 12px 15px;
+            }
+            .card {
+                width: 160px;
+                height: 256px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- INTRO SCREEN -->
+        <div id="introScreen" class="screen active">
+            <h1 class="title">ZARA THE GREAT</h1>
+            <p class="subtitle">Sit down, my child. Let's see how your 2026 will go.</p>
+            <button class="btn" onclick="startReading()">Begin Reading</button>
+        </div>
+
+        <!-- QUESTION SCREEN -->
+        <div id="questionScreen" class="screen">
+            <div class="question-container">
+                <div class="question-counter" id="questionCounter"></div>
+                <div class="question-text" id="questionText"></div>
+                <div class="answers" id="answersContainer"></div>
+            </div>
+        </div>
+
+        <!-- CARD REVEAL SCREEN -->
+        <div id="cardScreen" class="screen">
+            <div class="card-display">
+                <div class="card" id="cardElement">
+                    <div class="card-face card-back">
+                        <img src="https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/Cardback.png" class="card-image" alt="Card Back">
+                    </div>
+                    <div class="card-face card-front" id="cardFront">
+                        <img id="cardFrontImage" src="" class="card-image" alt="Card">
+                        <div class="card-title" id="cardTitle"></div>
+                        <div class="card-tagline" id="cardTagline"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="dialogue-box" id="dialogueBox" style="display: none;">
+                <div class="dialogue-name">ZARA THE GREAT</div>
+                <div class="dialogue-text" id="dialogueText"></div>
+            </div>
+            <button class="btn" id="cardActionBtn" onclick="cardAction()" style="display: none;"></button>
+        </div>
+
+        <!-- FINAL READING SCREEN -->
+        <div id="finalScreen" class="screen">
+            <h2 class="title">YOUR 2026 READING</h2>
+            <div class="reading-text" id="finalReading"></div>
+            <button class="btn" onclick="restart()">Face 2026 Again</button>
+        </div>
+    </div>
+
+    <script>
+        // GAME STATE
+        let energy = 0;
+        let drive = 0;
+        let alignment = 0;
+        let currentQuestion = 0;
+        let drawnCards = [];
+        let currentCardIndex = 0;
+        let bgMusic = null;
+
+        // QUESTIONS DATA
+        const questions = [
+            {
+                text: "How did 2025 actually feel for you?",
+                answers: [
+                    { text: "A. \"Breakthrough. Painful, but big.\"", energy: 2, drive: 1, alignment: 0 },
+                    { text: "B. \"Flat. Like a loading screen that never finished.\"", energy: 0, drive: -1, alignment: 0 },
+                    { text: "C. \"Chaotic, but I learned a lot.\"", energy: 1, drive: 0, alignment: 1 },
+                    { text: "D. \"Survived. That's the nicest word I'll use.\"", energy: -1, drive: -1, alignment: 0 }
+                ]
+            },
+            {
+                text: "Your first impulse when you see a new opportunity?",
+                answers: [
+                    { text: "A. \"Jump. Regret is a future problem.\"", energy: 1, drive: 2, alignment: 0 },
+                    { text: "B. \"Research, plan, then move.\"", energy: 0, drive: 1, alignment: 1 },
+                    { text: "C. \"Wait for signs, vibes, or the universe.\"", energy: 1, drive: 0, alignment: 0 },
+                    { text: "D. \"Pretend I didn't see it.\"", energy: 0, drive: -2, alignment: 0 }
+                ]
+            },
+            {
+                text: "What do you secretly fear most in 2026?",
+                answers: [
+                    { text: "A. \"Wasting time on the wrong things.\"", energy: 0, drive: 1, alignment: 0 },
+                    { text: "B. \"Failing publicly where people see it.\"", energy: 0, drive: 0, alignment: 2 },
+                    { text: "C. \"Losing myself in everything and everyone.\"", energy: 1, drive: 0, alignment: -1 },
+                    { text: "D. \"Nothing. Fear is for people with imagination.\"", energy: 1, drive: 2, alignment: 0 }
+                ]
+            },
+            {
+                text: "Which force actually guides your decisions?",
+                answers: [
+                    { text: "A. \"Logic and spreadsheets.\"", energy: 0, drive: 1, alignment: -1 },
+                    { text: "B. \"Gut instinct.\"", energy: 2, drive: 0, alignment: 0 },
+                    { text: "C. \"Other people's needs.\"", energy: 0, drive: 0, alignment: 2 },
+                    { text: "D. \"Chaos. If it feels unhinged, I'm in.\"", energy: 2, drive: 1, alignment: 0 }
+                ]
+            },
+            {
+                text: "Your relationship with change is…",
+                answers: [
+                    { text: "A. \"I cause it.\"", energy: 1, drive: 2, alignment: 0 },
+                    { text: "B. \"I tolerate it if I must.\"", energy: -1, drive: 0, alignment: 0 },
+                    { text: "C. \"I avoid it. Comfort is king.\"", energy: 0, drive: -2, alignment: 0 },
+                    { text: "D. \"It keeps finding me anyway.\"", energy: 1, drive: 0, alignment: 1 }
+                ]
+            },
+            {
+                text: "Pick a symbol.",
+                answers: [
+                    { text: "A. Crown", energy: 0, drive: 1, alignment: 1 },
+                    { text: "B. Key", energy: 1, drive: 0, alignment: 0 },
+                    { text: "C. Flame", energy: 0, drive: 2, alignment: 0 },
+                    { text: "D. Mask", energy: 1, drive: 0, alignment: 1 }
+                ]
+            },
+            {
+                text: "How do you normally handle conflict?",
+                answers: [
+                    { text: "A. \"Confront it. Loudly.\"", energy: 0, drive: 2, alignment: 0 },
+                    { text: "B. \"Talk around it, negotiate, smooth it out.\"", energy: 0, drive: 0, alignment: 2 },
+                    { text: "C. \"Overthink it in my head for three days.\"", energy: -1, drive: 0, alignment: 0 },
+                    { text: "D. \"Ignore it and hope it dies.\"", energy: 0, drive: -1, alignment: -1 }
+                ]
+            },
+            {
+                text: "What do you want most from 2026?",
+                answers: [
+                    { text: "A. \"Power. Real control.\"", energy: 0, drive: 2, alignment: 1 },
+                    { text: "B. \"Peace. Just let me breathe.\"", energy: -1, drive: 0, alignment: 2 },
+                    { text: "C. \"Transformation. Blow it all up and rebuild.\"", energy: 2, drive: 0, alignment: 0 },
+                    { text: "D. \"Adventure. Give me chaos with cool cutscenes.\"", energy: 2, drive: 1, alignment: 0 }
+                ]
+            }
+        ];
+
+        // CARD DATA
+        const cardData = {
+            catalyst: {
+                id: 'catalyst',
+                title: 'The Catalyst',
+                tagline: 'You are the explosion, not the bystander.',
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20catalyst.png',
+                zaraOneLiner: "When things blow up next year, check your own fingerprints first.",
+                zaraReading: "You don't wait for doors; you run at walls and hope they're load-bearing. In 2026, your impatience is both your engine and your wrecking ball. You'll start more than you can gracefully finish, but some of those chaotic launches will actually land. Plan just enough to avoid jail and bankruptcy, then accept that the rest will be carnage and growth.",
+                summary: "you start fires that turn into opportunities if you don't run from the smoke"
+            },
+            mirror: {
+                id: 'mirror',
+                title: 'The Mirror',
+                tagline: "You're the problem and the solution. Congratulations.",
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20mirror.png',
+                zaraOneLiner: "This year is less about fate and more about finally admitting what's obvious.",
+                zaraReading: "In 2026, life will keep handing you situations that look suspiciously like your past mistakes wearing new outfits. You'll be forced to see your patterns, not just your excuses. If you lean in, you actually get evolution; if you don't, you get the same drama with worse lighting. Either way, the common denominator is you.",
+                summary: "you'll face your patterns until you finally stop pretending they're coincidences"
+            },
+            tower: {
+                id: 'tower',
+                title: 'The Tower Reborn',
+                tagline: "If it can collapse, it will. Then you'll live in the ruins.",
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20tower%20reborn.png',
+                zaraOneLiner: "Don't panic. The wreckage will look great on your character arc.",
+                zaraReading: "In 2026, something you thought was solid will snap like cheap plastic. A job, a relationship, a plan you swore was 'the one'—pick your favorite illusion. The bad news is, you don't get to keep it. The good news is, what replaces it actually fits who you're becoming, not who you pretended to be. You can cling, or you can rebuild faster. The cards don't care which.",
+                summary: "something you depend on collapses so you finally build something honest"
+            },
+            pilgrim: {
+                id: 'pilgrim',
+                title: 'The Pilgrim',
+                tagline: "You're moving, but the universe hid the map.",
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20pilgrim.png',
+                zaraOneLiner: "You're not lost; you're just taking the scenic route no one asked for.",
+                zaraReading: "2026 will be a year of slow, weird progress. You'll drift, doubt, and wonder if everyone else got instructions you missed. They didn't. Your path just isn't the flashy shortcut. Expect detours, false starts, and small, quiet wins that only make sense when you look back. Try patience for once—it's cheaper than panic.",
+                summary: "you move slowly, but the long road keeps you from repeating the worst mistakes"
+            },
+            crown: {
+                id: 'crown',
+                title: 'The Crown',
+                tagline: 'You wanted control. Now you get responsibility too.',
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20crown.png',
+                zaraOneLiner: "In 2026, people will actually listen to you. Try not to ruin them.",
+                zaraReading: "Leadership is stapled to your forehead this year, whether you asked for it or not. Decisions will land in your lap because everyone else is conveniently 'unsure.' Your influence grows, and so does the damage you can do if you lead from ego instead of spine. If you step up cleanly, you build something real. If not, enjoy your tiny collapsing kingdom.",
+                summary: "people will follow your lead, which means your mistakes now hurt more than just you"
+            },
+            veil: {
+                id: 'veil',
+                title: 'The Veil',
+                tagline: 'Nothing stays hidden forever. Especially your nonsense.',
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20veil.png',
+                zaraOneLiner: "2026 is the year your secrets get bored of staying quiet.",
+                zaraReading: "Half-truths and carefully edited versions of yourself won't hold much longer. People, situations, and inconvenient facts will peel back the curtain. You'll see others more clearly, but they'll also see you—especially the parts you tried to dress up as 'boundaries' or 'private.' If you're honest early, the reveals sting less. If you're not, enjoy the dramatic unmasking.",
+                summary: "truths you've been dodging will corner you in public"
+            },
+            serpent: {
+                id: 'serpent',
+                title: 'The Serpent',
+                tagline: 'Temptation with receipts.',
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20serpent.png',
+                zaraOneLiner: "In 2026, you'll know better and still consider doing it anyway.",
+                zaraReading: "You'll be offered shortcuts, pretty lies, and deals that smell wrong but feel convenient. You're not naive—you'll see the risk. You just might flirt with it because boredom is louder than caution. Choose carefully which rules you bend. The right risks pay off. The lazy ones follow you around like debt.",
+                summary: "temptation will dress up as opportunity and you'll have to tell the difference"
+            },
+            loom: {
+                id: 'loom',
+                title: 'The Loom',
+                tagline: "Your fate is a group project. Sorry.",
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20loom.png',
+                zaraOneLiner: "You keep trying to do everything alone. 2026 thinks that's adorable.",
+                zaraReading: "This year, your progress is tied to other people whether your inner control freak likes it or not. Collaborations, partnerships, and communities will push your story forward—or choke it if you pick badly. You'll have to learn who actually shows up versus who just claps from the sidelines. Choose your threads, or get woven into someone else's pattern.",
+                summary: "your success depends on who you trust, and some threads will try to strangle you"
+            }
+        };
+
+        // FUNCTIONS
+        function startReading() {
+            // Play background music
+            bgMusic = new Audio('https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/mystic-forests-434678.mp3');
+            bgMusic.loop = true;
+            bgMusic.volume = 0.3;
+            bgMusic.play().catch(e => console.log('Audio autoplay prevented'));
+
+            showScreen('questionScreen');
+            showQuestion(0);
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const q = questions[index];
+            
+            document.getElementById('questionCounter').textContent = `Question ${index + 1} of 8`;
+            document.getElementById('questionText').textContent = q.text;
+            
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+            
+            q.answers.forEach((answer, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = answer.text;
+                btn.onclick = () => selectAnswer(answer);
+                answersContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(answer) {
+            energy += answer.energy;
+            drive += answer.drive;
+            alignment += answer.alignment;
+            
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else {
+                calculateCards();
+            }
+        }
+
+        function calculateCards() {
+            const pos = (x) => Math.max(0, x);
+            const neg = (x) => Math.max(0, -x);
+            const abs = Math.abs;
+
+            const cards = [
+                { id: 'catalyst', score: pos(drive) * 2 + pos(energy) },
+                { id: 'mirror', score: abs(energy) + abs(alignment) + 1 },
+                { id: 'tower', score: abs(energy) * 2 + (drive <= 0 ? 3 : 0) },
+                { id: 'pilgrim', score: neg(drive) * 2 + neg(energy) + (alignment > 0 ? 1 : 0) },
+                { id: 'crown', score: pos(drive) + pos(alignment) * 2 },
+                { id: 'veil', score: abs(alignment) * 2 + pos(energy) },
+                { id: 'serpent', score: pos(energy) * 2 + neg(alignment) * 2 + (drive > 0 ? 1 : 0) },
+                { id: 'loom', score: pos(alignment) * 2 + (drive > 0 ? 1 : 0) }
+            ];
+
+            cards.sort((a, b) => b.score - a.score);
+            drawnCards = cards.slice(0, 3);
+            
+            currentCardIndex = 0;
+            showCardReveal();
+        }
+
+        function showCardReveal() {
+            showScreen('cardScreen');
+            
+            const card = cardData[drawnCards[currentCardIndex].id];
+            const cardElement = document.getElementById('cardElement');
+            
+            // Reset card
+            cardElement.classList.remove('flipped');
+            document.getElementById('dialogueBox').style.display = 'none';
+            document.getElementById('cardActionBtn').style.display = 'none';
+            
+            // Set card front content
+            document.getElementById('cardFrontImage').src = card.image;
+            document.getElementById('cardTitle').textContent = card.title;
+            document.getElementById('cardTagline').textContent = card.tagline;
+            
+            // Flip card after delay
+            setTimeout(() => {
+                cardElement.classList.add('flipped');
+                setTimeout(() => {
+                    showDialogue(card.zaraOneLiner, 'Hear More');
+                }, 600);
+            }, 500);
+        }
+
+        function showDialogue(text, btnText) {
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueBox = document.getElementById('dialogueBox');
+            const actionBtn = document.getElementById('cardActionBtn');
+            
+            dialogueText.textContent = '';
+            dialogueBox.style.display = 'block';
+            actionBtn.style.display = 'none';
+            
+            // Typewriter effect
+            let i = 0;
+            const speed = 30;
+            function typeWriter() {
+                if (i < text.length) {
+                    dialogueText.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, speed);
+                } else {
+                    actionBtn.textContent = btnText;
+                    actionBtn.style.display = 'inline-block';
+                }
+            }
+            typeWriter();
+        }
+
+        function cardAction() {
+            const card = cardData[drawnCards[currentCardIndex].id];
+            const dialogueText = document.getElementById('dialogueText');
+            
+            if (dialogueText.textContent === card.zaraOneLiner) {
+                // Show full reading
+                showDialogue(card.zaraReading, currentCardIndex < 2 ? 'Next Card' : 'Final Reading');
+            } else {
+                // Move to next card or final reading
+                if (currentCardIndex < 2) {
+                    currentCardIndex++;
+                    showCardReveal();
+                } else {
+                    showFinalReading();
+                }
+            }
+        }
+
+        function showFinalReading() {
+            showScreen('finalScreen');
+            
+            // Determine dominant stat
+            let dominant = 'energy';
+            let intro = "Your year is ruled by raw energy. You'll feel everything too loudly and move faster than your sense of judgment.";
+            
+            if (drive >= energy && drive >= alignment) {
+                dominant = 'drive';
+                intro = "This year is about action. The universe is tired of your planning phase and will start grading you on execution.";
+            } else if (alignment >= energy && alignment >= drive) {
+                if (alignment >= 0) {
+                    dominant = 'alignment';
+                    intro = "Your connections run the show. Who you attach yourself to in 2026 matters more than what you think you 'deserve'.";
+                } else {
+                    intro = "You'll be painfully aware that you're your own main character. The problem is, everyone else still exists.";
+                }
+            }
+            
+            const card1 = cardData[drawnCards[0].id];
+            const card2 = cardData[drawnCards[1].id];
+            const card3 = cardData[drawnCards[2].id];
+            
+            const finalText = `
+                <p>${intro}</p>
+                
+                <p>The first card, <strong>${card1.title}</strong>, says ${card1.summary} — this is how you walk into 2026.</p>
+                
+                <p>The second card, <strong>${card2.title}</strong>, marks the main mess you'll have to manage: ${card2.summary}.</p>
+                
+                <p>The final card, <strong>${card3.title}</strong>, shows where you land if you don't completely sabotage yourself: ${card3.summary}.</p>
+                
+                <p>You can listen, adjust, and make this easier. Or you can ignore it and give me something hilarious to say about you next year. Your move.</p>
+            `;
+            
+            document.getElementById('finalReading').innerHTML = finalText;
+        }
+
+        function restart() {
+            energy = 0;
+            drive = 0;
+            alignment = 0;
+            currentQuestion = 0;
+            drawnCards = [];
+            currentCardIndex = 0;
+            
+            if (bgMusic) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+            }
+            
+            showScreen('introScreen');
+        }
+    </script>
+</body>
+</html>
