@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>3i Atlas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZARA THE GREAT</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * {
@@ -11,1285 +11,672 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
         body {
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Press Start 2P', monospace;
-            overflow: hidden;
-        }
-
-        #gameContainer {
-            position: relative;
             width: 100vw;
             height: 100vh;
-            max-width: 100vw;
-            max-height: 100vh;
+            background: #1a0f2e;
+            font-family: 'Press Start 2P', monospace;
+            color: #e0d4ff;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #000;
         }
 
-        canvas {
+        #app {
+            width: 100%;
+            height: 100vh;
+        }
+
+        #gameCanvas {
+            width: 100vw;
+            height: 100vh;
             display: block;
             image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
             image-rendering: crisp-edges;
-            background: #000;
         }
 
-        @media (min-width: 768px) {
-            #gameContainer {
-                max-width: 375px;
-                max-height: 667px;
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .screen-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100%;
+            justify-content: center;
+        }
+
+        .title {
+            font-size: 32px;
+            color: #ff6b9d;
+            text-shadow: 2px 2px #4a0e4e;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #b8a4d4;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+
+        .btn {
+            background: #5d3a8f;
+            color: #fff;
+            border: 3px solid #8b5fbf;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: 'Press Start 2P', monospace;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 4px 4px #2a1347;
+            transition: all 0.1s;
+        }
+
+        .btn:hover {
+            background: #7d5aaf;
+            transform: translate(1px, 1px);
+            box-shadow: 3px 3px #2a1347;
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px #2a1347;
+        }
+
+        .question-container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .question-text {
+            font-size: 20px;
+            color: #ff6b9d;
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .question-counter {
+            font-size: 14px;
+            color: #8b5fbf;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .answer-btn {
+            background: #2a1347;
+            color: #b8a4d4;
+            border: 2px solid #5d3a8f;
+            padding: 15px 20px;
+            font-size: 14px;
+            font-family: 'Press Start 2P', monospace;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.1s;
+            line-height: 1.4;
+        }
+
+        .answer-btn:hover {
+            background: #3d1f5f;
+            border-color: #8b5fbf;
+            color: #e0d4ff;
+        }
+
+        .card-display {
+            perspective: 1000px;
+            margin: 30px 0;
+        }
+
+        .card {
+            width: 200px;
+            height: 320px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-back {
+            background: transparent;
+        }
+
+        .card-front {
+            transform: rotateY(180deg);
+            flex-direction: column;
+            padding: 20px;
+            background: transparent;
+        }
+
+        .card-title {
+            font-size: 18px;
+            color: #ff6b9d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .card-tagline {
+            font-size: 12px;
+            color: #b8a4d4;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .card-image {
+            width: 150px;
+            height: 200px;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .dialogue-box {
+            background: #2a1347;
+            border: 3px solid #8b5fbf;
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .dialogue-name {
+            color: #ff6b9d;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .dialogue-text {
+            color: #e0d4ff;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .reading-text {
+            background: #2a1347;
+            border: 2px solid #5d3a8f;
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 600px;
+            width: 100%;
+            color: #b8a4d4;
+            font-size: 14px;
+            line-height: 1.8;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .reading-text p {
+            margin-bottom: 15px;
+        }
+
+        .reading-text strong {
+            color: #ff6b9d;
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 24px;
+            }
+            .question-text {
+                font-size: 18px;
+            }
+            .answer-btn {
+                font-size: 13px;
+                padding: 12px 15px;
+            }
+            .card {
+                width: 160px;
+                height: 256px;
             }
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
+    <div id="app">
+        <!-- INTRO SCREEN -->
+        <div id="introScreen" class="screen active">
+            <div class="screen-content">
+                <h1 class="title">ZARA THE GREAT</h1>
+                <p class="subtitle">Sit down, my child. Let's see how your 2026 will go.</p>
+                <button class="btn" onclick="startReading()">Begin Reading</button>
+            </div>
+        </div>
+
+        <!-- QUESTION SCREEN -->
+        <div id="questionScreen" class="screen">
+            <div class="screen-content">
+                <div class="question-container">
+                    <div class="question-counter" id="questionCounter"></div>
+                    <div class="question-text" id="questionText"></div>
+                    <div class="answers" id="answersContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD REVEAL SCREEN -->
+        <div id="cardScreen" class="screen">
+            <div class="screen-content">
+                <div class="card-display">
+                    <div class="card" id="cardElement">
+                        <div class="card-face card-back">
+                            <img src="https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/Cardback.png" class="card-image" alt="Card Back">
+                        </div>
+                        <div class="card-face card-front" id="cardFront">
+                            <img id="cardFrontImage" src="" class="card-image" alt="Card">
+                            <div class="card-title" id="cardTitle"></div>
+                            <div class="card-tagline" id="cardTagline"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dialogue-box" id="dialogueBox" style="display: none;">
+                    <div class="dialogue-name">ZARA THE GREAT</div>
+                    <div class="dialogue-text" id="dialogueText"></div>
+                </div>
+                <button class="btn" id="cardActionBtn" onclick="cardAction()" style="display: none;"></button>
+            </div>
+        </div>
+
+        <!-- FINAL READING SCREEN -->
+        <div id="finalScreen" class="screen">
+            <div class="screen-content">
+                <h2 class="title">YOUR 2026 READING</h2>
+                <div class="reading-text" id="finalReading"></div>
+                <button class="btn" onclick="restart()">Face 2026 Again</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Base dimensions
-        const BASE_WIDTH = 375;
-        const BASE_HEIGHT = 667;
-        let scale = 1;
-
-        // Game states
-        const STATE = {
-            TITLE: 'title',
-            FACTION_SELECT: 'faction_select',
-            PLAYING: 'playing',
-            GAME_OVER: 'game_over'
-        };
-
-        let gameState = STATE.TITLE;
-        let playerFaction = null; // 'earth' or 'comet'
-        let playerScore = 0;
-        let opponentScore = 0;
-        let gameTimer = 0;
-        const GAME_DURATION = 45 * 60; // 45 seconds at 60fps
-
-        // Sprite placeholders - Load from GitHub
-        const earthSprite = new Image();
-        earthSprite.src = 'https://raw.githubusercontent.com/LogicNerds/neonbread3iatlas/main/assets/earth.png';
-        
-        const cometSprite = new Image();
-        cometSprite.src = 'https://raw.githubusercontent.com/LogicNerds/neonbread3iatlas/main/assets/3iatlas.png';
-
-        // Game logo
-        const gameLogo = new Image();
-        gameLogo.src = 'https://raw.githubusercontent.com/LogicNerds/neonbread3iatlas/main/assets/3iatlaslogo.png';
-
-        // Background music - will be created on first interaction
+        // GAME STATE
+        let energy = 0;
+        let drive = 0;
+        let alignment = 0;
+        let currentQuestion = 0;
+        let drawnCards = [];
+        let currentCardIndex = 0;
         let bgMusic = null;
 
-        // Function called directly by Launch Your Attack button
-        function launchGame() {
-            // Create and play background music immediately on user click
-            bgMusic = new Audio('https://raw.githubusercontent.com/LogicNerds/neonbread3iatlas/main/assets/joogs-hyperspace-416314.mp3');
-            bgMusic.loop = true;
-            bgMusic.volume = 0.4;
-            bgMusic.play().catch(e => console.log('Audio play failed:', e));
-            
-            // Initialize audio context for sound effects
-            initAudio();
-            
-            // Move to faction select
-            gameState = STATE.FACTION_SELECT;
-        }
-
-        // Player projectiles and effects
-        let playerProjectiles = [];
-        let opponentProjectiles = [];
-        let explosions = [];
-        let playerFlares = [];
-        let opponentFlares = [];
-
-        // Player state (Earth or Comet)
-        let playerY = BASE_HEIGHT / 2;
-        let playerCharging = false;
-        let playerChargeTime = 0;
-
-        // Player nukes (for Earth - can have multiple in flight)
-        let playerNukes = [];
-
-        // Opponent state
-        let opponentY = BASE_HEIGHT / 2;
-        let opponentDriftDir = 1;
-        let opponentAttackTimer = 0;
-        let opponentMoveTimer = 0;
-
-        // Touch tracking
-        let touchStartY = 0;
-        let touchStartTime = 0;
-        let activeTouch = null;
-
-        // Audio context for chiptune sounds
-        let audioCtx = null;
-
-        // Initialize audio context on first user interaction
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // QUESTIONS DATA
+        const questions = [
+            {
+                text: "How did 2025 actually feel for you?",
+                answers: [
+                    { text: "A. \"Breakthrough. Painful, but big.\"", energy: 2, drive: 1, alignment: 0 },
+                    { text: "B. \"Flat. Like a loading screen that never finished.\"", energy: 0, drive: -1, alignment: 0 },
+                    { text: "C. \"Chaotic, but I learned a lot.\"", energy: 1, drive: 0, alignment: 1 },
+                    { text: "D. \"Survived. That's the nicest word I'll use.\"", energy: -1, drive: -1, alignment: 0 }
+                ]
+            },
+            {
+                text: "Your first impulse when you see a new opportunity?",
+                answers: [
+                    { text: "A. \"Jump. Regret is a future problem.\"", energy: 1, drive: 2, alignment: 0 },
+                    { text: "B. \"Research, plan, then move.\"", energy: 0, drive: 1, alignment: 1 },
+                    { text: "C. \"Wait for signs, vibes, or the universe.\"", energy: 1, drive: 0, alignment: 0 },
+                    { text: "D. \"Pretend I didn't see it.\"", energy: 0, drive: -2, alignment: 0 }
+                ]
+            },
+            {
+                text: "What do you secretly fear most in 2026?",
+                answers: [
+                    { text: "A. \"Wasting time on the wrong things.\"", energy: 0, drive: 1, alignment: 0 },
+                    { text: "B. \"Failing publicly where people see it.\"", energy: 0, drive: 0, alignment: 2 },
+                    { text: "C. \"Losing myself in everything and everyone.\"", energy: 1, drive: 0, alignment: -1 },
+                    { text: "D. \"Nothing. Fear is for people with imagination.\"", energy: 1, drive: 2, alignment: 0 }
+                ]
+            },
+            {
+                text: "Which force actually guides your decisions?",
+                answers: [
+                    { text: "A. \"Logic and spreadsheets.\"", energy: 0, drive: 1, alignment: -1 },
+                    { text: "B. \"Gut instinct.\"", energy: 2, drive: 0, alignment: 0 },
+                    { text: "C. \"Other people's needs.\"", energy: 0, drive: 0, alignment: 2 },
+                    { text: "D. \"Chaos. If it feels unhinged, I'm in.\"", energy: 2, drive: 1, alignment: 0 }
+                ]
+            },
+            {
+                text: "Your relationship with change is…",
+                answers: [
+                    { text: "A. \"I cause it.\"", energy: 1, drive: 2, alignment: 0 },
+                    { text: "B. \"I tolerate it if I must.\"", energy: -1, drive: 0, alignment: 0 },
+                    { text: "C. \"I avoid it. Comfort is king.\"", energy: 0, drive: -2, alignment: 0 },
+                    { text: "D. \"It keeps finding me anyway.\"", energy: 1, drive: 0, alignment: 1 }
+                ]
+            },
+            {
+                text: "Pick a symbol.",
+                answers: [
+                    { text: "A. Crown", energy: 0, drive: 1, alignment: 1 },
+                    { text: "B. Key", energy: 1, drive: 0, alignment: 0 },
+                    { text: "C. Flame", energy: 0, drive: 2, alignment: 0 },
+                    { text: "D. Mask", energy: 1, drive: 0, alignment: 1 }
+                ]
+            },
+            {
+                text: "How do you normally handle conflict?",
+                answers: [
+                    { text: "A. \"Confront it. Loudly.\"", energy: 0, drive: 2, alignment: 0 },
+                    { text: "B. \"Talk around it, negotiate, smooth it out.\"", energy: 0, drive: 0, alignment: 2 },
+                    { text: "C. \"Overthink it in my head for three days.\"", energy: -1, drive: 0, alignment: 0 },
+                    { text: "D. \"Ignore it and hope it dies.\"", energy: 0, drive: -1, alignment: -1 }
+                ]
+            },
+            {
+                text: "What do you want most from 2026?",
+                answers: [
+                    { text: "A. \"Power. Real control.\"", energy: 0, drive: 2, alignment: 1 },
+                    { text: "B. \"Peace. Just let me breathe.\"", energy: -1, drive: 0, alignment: 2 },
+                    { text: "C. \"Transformation. Blow it all up and rebuild.\"", energy: 2, drive: 0, alignment: 0 },
+                    { text: "D. \"Adventure. Give me chaos with cool cutscenes.\"", energy: 2, drive: 1, alignment: 0 }
+                ]
             }
-        }
+        ];
 
-        // Chiptune sound generators
-        function playLaserSound() {
-            if (!audioCtx) return;
-            
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            // Square wave for retro laser sound
-            oscillator.type = 'square';
-            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
-            
-            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            
-            oscillator.start(audioCtx.currentTime);
-            oscillator.stop(audioCtx.currentTime + 0.1);
-        }
-
-        function playPlasmaSound() {
-            if (!audioCtx) return;
-            
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            // Sawtooth wave for plasma
-            oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
-            
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            
-            oscillator.start(audioCtx.currentTime);
-            oscillator.stop(audioCtx.currentTime + 0.2);
-        }
-
-        function playNukeLaunchSound() {
-            if (!audioCtx) return;
-            
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            // Low rumble building up
-            oscillator.type = 'triangle';
-            oscillator.frequency.setValueAtTime(80, audioCtx.currentTime);
-            oscillator.frequency.linearRampToValueAtTime(120, audioCtx.currentTime + 0.15);
-            
-            gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            
-            oscillator.start(audioCtx.currentTime);
-            oscillator.stop(audioCtx.currentTime + 0.15);
-        }
-
-        function playExplosionSound() {
-            if (!audioCtx) return;
-            
-            // Create noise buffer for explosion
-            const bufferSize = audioCtx.sampleRate * 0.3;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            
-            // Generate white noise
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
+        // CARD DATA
+        const cardData = {
+            catalyst: {
+                id: 'catalyst',
+                title: 'The Catalyst',
+                tagline: 'You are the explosion, not the bystander.',
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20catalyst.png',
+                zaraOneLiner: "When things blow up next year, check your own fingerprints first.",
+                zaraReading: "You don't wait for doors; you run at walls and hope they're load-bearing. In 2026, your impatience is both your engine and your wrecking ball. You'll start more than you can gracefully finish, but some of those chaotic launches will actually land. Plan just enough to avoid jail and bankruptcy, then accept that the rest will be carnage and growth.",
+                summary: "you start fires that turn into opportunities if you don't run from the smoke"
+            },
+            mirror: {
+                id: 'mirror',
+                title: 'The Mirror',
+                tagline: "You're the problem and the solution. Congratulations.",
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20mirror.png',
+                zaraOneLiner: "This year is less about fate and more about finally admitting what's obvious.",
+                zaraReading: "In 2026, life will keep handing you situations that look suspiciously like your past mistakes wearing new outfits. You'll be forced to see your patterns, not just your excuses. If you lean in, you actually get evolution; if you don't, you get the same drama with worse lighting. Either way, the common denominator is you.",
+                summary: "you'll face your patterns until you finally stop pretending they're coincidences"
+            },
+            tower: {
+                id: 'tower',
+                title: 'The Tower Reborn',
+                tagline: "If it can collapse, it will. Then you'll live in the ruins.",
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20tower%20reborn.png',
+                zaraOneLiner: "Don't panic. The wreckage will look great on your character arc.",
+                zaraReading: "In 2026, something you thought was solid will snap like cheap plastic. A job, a relationship, a plan you swore was 'the one'—pick your favorite illusion. The bad news is, you don't get to keep it. The good news is, what replaces it actually fits who you're becoming, not who you pretended to be. You can cling, or you can rebuild faster. The cards don't care which.",
+                summary: "something you depend on collapses so you finally build something honest"
+            },
+            pilgrim: {
+                id: 'pilgrim',
+                title: 'The Pilgrim',
+                tagline: "You're moving, but the universe hid the map.",
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20pilgrim.png',
+                zaraOneLiner: "You're not lost; you're just taking the scenic route no one asked for.",
+                zaraReading: "2026 will be a year of slow, weird progress. You'll drift, doubt, and wonder if everyone else got instructions you missed. They didn't. Your path just isn't the flashy shortcut. Expect detours, false starts, and small, quiet wins that only make sense when you look back. Try patience for once—it's cheaper than panic.",
+                summary: "you move slowly, but the long road keeps you from repeating the worst mistakes"
+            },
+            crown: {
+                id: 'crown',
+                title: 'The Crown',
+                tagline: 'You wanted control. Now you get responsibility too.',
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20crown.png',
+                zaraOneLiner: "In 2026, people will actually listen to you. Try not to ruin them.",
+                zaraReading: "Leadership is stapled to your forehead this year, whether you asked for it or not. Decisions will land in your lap because everyone else is conveniently 'unsure.' Your influence grows, and so does the damage you can do if you lead from ego instead of spine. If you step up cleanly, you build something real. If not, enjoy your tiny collapsing kingdom.",
+                summary: "people will follow your lead, which means your mistakes now hurt more than just you"
+            },
+            veil: {
+                id: 'veil',
+                title: 'The Veil',
+                tagline: 'Nothing stays hidden forever. Especially your nonsense.',
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20veil.png',
+                zaraOneLiner: "2026 is the year your secrets get bored of staying quiet.",
+                zaraReading: "Half-truths and carefully edited versions of yourself won't hold much longer. People, situations, and inconvenient facts will peel back the curtain. You'll see others more clearly, but they'll also see you—especially the parts you tried to dress up as 'boundaries' or 'private.' If you're honest early, the reveals sting less. If you're not, enjoy the dramatic unmasking.",
+                summary: "truths you've been dodging will corner you in public"
+            },
+            serpent: {
+                id: 'serpent',
+                title: 'The Serpent',
+                tagline: 'Temptation with receipts.',
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20serpent.png',
+                zaraOneLiner: "In 2026, you'll know better and still consider doing it anyway.",
+                zaraReading: "You'll be offered shortcuts, pretty lies, and deals that smell wrong but feel convenient. You're not naive—you'll see the risk. You just might flirt with it because boredom is louder than caution. Choose carefully which rules you bend. The right risks pay off. The lazy ones follow you around like debt.",
+                summary: "temptation will dress up as opportunity and you'll have to tell the difference"
+            },
+            loom: {
+                id: 'loom',
+                title: 'The Loom',
+                tagline: "Your fate is a group project. Sorry.",
+                image: 'https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/The%20loom.png',
+                zaraOneLiner: "You keep trying to do everything alone. 2026 thinks that's adorable.",
+                zaraReading: "This year, your progress is tied to other people whether your inner control freak likes it or not. Collaborations, partnerships, and communities will push your story forward—or choke it if you pick badly. You'll have to learn who actually shows up versus who just claps from the sidelines. Choose your threads, or get woven into someone else's pattern.",
+                summary: "your success depends on who you trust, and some threads will try to strangle you"
             }
-            
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-            
-            const noiseFilter = audioCtx.createBiquadFilter();
-            noiseFilter.type = 'lowpass';
-            noiseFilter.frequency.setValueAtTime(2000, audioCtx.currentTime);
-            noiseFilter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
-            
-            const noiseGain = audioCtx.createGain();
-            noiseGain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            
-            noise.connect(noiseFilter);
-            noiseFilter.connect(noiseGain);
-            noiseGain.connect(audioCtx.destination);
-            
-            noise.start(audioCtx.currentTime);
-            noise.stop(audioCtx.currentTime + 0.3);
-        }
-
-        function playFlareSound() {
-            if (!audioCtx) return;
-            
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            // High-pitched whoosh
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(2400, audioCtx.currentTime + 0.12);
-            
-            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
-            
-            oscillator.start(audioCtx.currentTime);
-            oscillator.stop(audioCtx.currentTime + 0.12);
-        }
-
-        // Colors
-        const COLORS = {
-            earthBlue: '#00BFFF',
-            cometPurple: '#9D00FF',
-            laserRed: '#FF0066',
-            nukeOrange: '#FF6600',
-            plasmaGreen: '#00FF88',
-            flareYellow: '#FFFF00',
-            bg: '#0a0015',
-            stars: '#ffffff'
         };
 
-        // Resize handler
-        function resize() {
-            const container = document.getElementById('gameContainer');
-            const containerWidth = container.clientWidth;
-            const containerHeight = container.clientHeight;
-            
-            const scaleX = containerWidth / BASE_WIDTH;
-            const scaleY = containerHeight / BASE_HEIGHT;
-            scale = Math.min(scaleX, scaleY);
-            
-            canvas.width = BASE_WIDTH * scale;
-            canvas.height = BASE_HEIGHT * scale;
-            
-            ctx.imageSmoothingEnabled = false;
-            ctx.scale(scale, scale);
+        // FUNCTIONS
+        function startReading() {
+            // Play background music
+            bgMusic = new Audio('https://raw.githubusercontent.com/LogicNerds/neonbreadzarathegreat/main/assets/mystic-forests-434678.mp3');
+            bgMusic.loop = true;
+            bgMusic.volume = 0.3;
+            bgMusic.play().catch(e => console.log('Audio autoplay prevented'));
+
+            showScreen('questionScreen');
+            showQuestion(0);
         }
 
-        window.addEventListener('resize', resize);
-        resize();
-
-        // Drawing functions
-        function drawStarfield() {
-            ctx.fillStyle = COLORS.bg;
-            ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
-            
-            // Simple stars
-            ctx.fillStyle = COLORS.stars;
-            for (let i = 0; i < 50; i++) {
-                const x = (i * 73) % BASE_WIDTH;
-                const y = (i * 97) % BASE_HEIGHT;
-                const size = (i % 3) + 1;
-                ctx.fillRect(x, y, size, size);
-            }
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
         }
 
-        function drawPixelText(text, x, y, size, color) {
-            ctx.fillStyle = color;
-            ctx.font = `${size}px 'Press Start 2P'`;
-            ctx.textAlign = 'center';
-            ctx.fillText(text, x, y);
-        }
-
-        function drawButton(text, x, y, width, height, color, hoverColor) {
-            ctx.fillStyle = color;
-            ctx.fillRect(x - width/2, y - height/2, width, height);
-            ctx.strokeStyle = hoverColor;
-            ctx.lineWidth = 3;
-            ctx.strokeRect(x - width/2, y - height/2, width, height);
+        function showQuestion(index) {
+            currentQuestion = index;
+            const q = questions[index];
             
-            // Support multi-line text (split by newline)
-            const lines = text.split('\n');
-            if (lines.length > 1) {
-                // Multi-line - center vertically
-                const lineHeight = 16;
-                const totalHeight = lines.length * lineHeight;
-                const startY = y - totalHeight / 2 + lineHeight / 2;
-                lines.forEach((line, index) => {
-                    drawPixelText(line, x, startY + index * lineHeight + 8, 14, '#fff');
-                });
-            } else {
-                // Single line
-                drawPixelText(text, x, y + 8, 14, '#fff');
-            }
-        }
-
-        function drawEarth(x, y, size) {
-            // Use sprite if loaded
-            if (earthSprite.complete && earthSprite.naturalWidth > 0) {
-                const spriteSize = size * 2;
-                ctx.drawImage(earthSprite, x - spriteSize/2, y - spriteSize/2, spriteSize, spriteSize);
-                return;
-            }
+            document.getElementById('questionCounter').textContent = `Question ${index + 1} of 8`;
+            document.getElementById('questionText').textContent = q.text;
             
-            // Fallback rendering
-            ctx.fillStyle = COLORS.earthBlue;
-            ctx.beginPath();
-            ctx.arc(x, y, size, 0, Math.PI * 2);
-            ctx.fill();
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
             
-            // Glow
-            ctx.strokeStyle = COLORS.earthBlue;
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            
-            // Simple land masses
-            ctx.fillStyle = '#00AA00';
-            ctx.fillRect(x - size/2, y - size/3, size/2, size/3);
-            ctx.fillRect(x, y, size/3, size/2);
-        }
-
-        function drawComet(x, y, size) {
-            // Use sprite if loaded
-            if (cometSprite.complete && cometSprite.naturalWidth > 0) {
-                const spriteSize = size * 2;
-                ctx.drawImage(cometSprite, x - spriteSize/2, y - spriteSize/2, spriteSize, spriteSize);
-                return;
-            }
-            
-            // Fallback rendering
-            ctx.fillStyle = COLORS.cometPurple;
-            ctx.beginPath();
-            ctx.arc(x, y, size, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Glow
-            ctx.strokeStyle = COLORS.cometPurple;
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            
-            // Tail particles
-            for (let i = 0; i < 5; i++) {
-                const tailX = x - (i + 1) * 8;
-                const tailY = y + (Math.sin(gameTimer * 0.05 + i) * 4);
-                const tailSize = size * (1 - i * 0.15);
-                ctx.globalAlpha = 0.6 - i * 0.1;
-                ctx.fillStyle = COLORS.cometPurple;
-                ctx.fillRect(tailX - tailSize/2, tailY - tailSize/2, tailSize, tailSize);
-            }
-            ctx.globalAlpha = 1;
-        }
-
-        function drawProjectile(proj) {
-            if (proj.type === 'nuke') {
-                ctx.fillStyle = COLORS.nukeOrange;
-                ctx.fillRect(proj.x - 6, proj.y - 6, 12, 12);
-                ctx.strokeStyle = '#FF9933';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(proj.x - 6, proj.y - 6, 12, 12);
-            } else if (proj.type === 'laser') {
-                ctx.fillStyle = COLORS.laserRed;
-                ctx.fillRect(proj.x - 10, proj.y - 3, 20, 6);
-                ctx.fillStyle = '#FF3388';
-                ctx.fillRect(proj.x - 8, proj.y - 2, 16, 4);
-            } else if (proj.type === 'plasma') {
-                ctx.fillStyle = COLORS.plasmaGreen;
-                ctx.beginPath();
-                ctx.arc(proj.x, proj.y, 8, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#00FFAA';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-        }
-
-        function drawExplosion(exp) {
-            const progress = exp.timer / exp.maxTimer;
-            const radius = exp.radius * (1 + progress * 0.5);
-            
-            ctx.globalAlpha = 1 - progress;
-            ctx.fillStyle = exp.color;
-            ctx.beginPath();
-            ctx.arc(exp.x, exp.y, radius, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
-
-        function drawFlare(flare) {
-            const progress = flare.timer / flare.maxTimer;
-            const radius = 40;
-            
-            ctx.globalAlpha = 0.3 * (1 - progress);
-            ctx.fillStyle = COLORS.flareYellow;
-            ctx.beginPath();
-            ctx.arc(flare.x, flare.y, radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1;
-        }
-
-        function drawHUD() {
-            // Timer (center top)
-            const timeLeft = Math.max(0, Math.ceil((GAME_DURATION - gameTimer) / 60));
-            drawPixelText(`${timeLeft}s`, BASE_WIDTH / 2, 30, 12, '#fff');
-            
-            // Player Score (left)
-            const scoreY = 60;
-            drawPixelText('YOU', 40, scoreY, 10, '#fff');
-            drawPixelText(`${playerScore}`, 40, scoreY + 20, 12, playerFaction === 'earth' ? COLORS.earthBlue : COLORS.cometPurple);
-            
-            // Opponent Score (right)
-            drawPixelText('ENEMY', BASE_WIDTH - 50, scoreY, 10, '#fff');
-            drawPixelText(`${opponentScore}`, BASE_WIDTH - 50, scoreY + 20, 12, playerFaction === 'earth' ? COLORS.cometPurple : COLORS.earthBlue);
-        }
-
-        function drawControls() {
-            const controlY = BASE_HEIGHT - 90;
-            
-            if (playerFaction === 'earth') {
-                // Nuke button (left)
-                drawButton('NUKE', 80, controlY, 130, 60, COLORS.nukeOrange, '#FF9933');
-                
-                // Detonate button (right) - shows number of nukes ready
-                const detonateText = playerNukes.length > 0 ? `DET (${playerNukes.length})` : 'DET';
-                const detonateColor = playerNukes.length > 0 ? '#FF3388' : '#663344';
-                drawButton(detonateText, BASE_WIDTH - 80, controlY, 130, 60, detonateColor, '#FF6688');
-                
-                // Flare instructions
-                drawPixelText('SWIPE UP FOR FLARE', BASE_WIDTH/2, controlY - 40, 8, '#888');
-            } else {
-                // Laser button (left)
-                drawButton('LASER', 80, controlY, 130, 60, COLORS.laserRed, '#FF3388');
-                
-                // Plasma button (right) - shows charge
-                const plasmaColor = playerCharging ? '#00FFAA' : COLORS.plasmaGreen;
-                drawButton('PLASMA', BASE_WIDTH - 80, controlY, 130, 60, plasmaColor, '#00FFAA');
-                
-                // Swipe instructions
-                drawPixelText('SWIPE TO MOVE', BASE_WIDTH/2, controlY - 40, 8, '#888');
-            }
-        }
-
-        // Title screen
-        function drawTitleScreen() {
-            drawStarfield();
-            
-            // Draw logo if loaded, otherwise fallback to text
-            if (gameLogo.complete && gameLogo.naturalWidth > 0) {
-                const logoWidth = 280;
-                const logoHeight = (gameLogo.naturalHeight / gameLogo.naturalWidth) * logoWidth;
-                ctx.drawImage(gameLogo, BASE_WIDTH/2 - logoWidth/2, 100, logoWidth, logoHeight);
-            } else {
-                // Fallback text
-                drawPixelText('3i Atlas', BASE_WIDTH/2, 150, 24, COLORS.cometPurple);
-            }
-            
-            // Draw small earth and comet
-            drawEarth(BASE_WIDTH/2 - 60, 250, 30);
-            drawComet(BASE_WIDTH/2 + 60, 250, 30);
-            
-            drawButton('Launch Your Attack', BASE_WIDTH/2, 400, 280, 70, COLORS.laserRed, '#FF3388');
-            
-            drawPixelText('Neon Bread Studios © 2025', BASE_WIDTH/2, BASE_HEIGHT - 30, 12, '#666');
-        }
-
-        // Faction selection screen
-        function drawFactionSelect() {
-            drawStarfield();
-            
-            drawPixelText('Choose Your Side', BASE_WIDTH/2, 120, 16, '#fff');
-            
-            // Earth button
-            drawEarth(BASE_WIDTH/2 - 80, 280, 40);
-            drawButton('Play as\nEarth', BASE_WIDTH/2 - 80, 370, 140, 70, COLORS.earthBlue, '#00DDFF');
-            
-            // Comet button
-            drawComet(BASE_WIDTH/2 + 80, 280, 40);
-            drawButton('Play as\n3i Atlas', BASE_WIDTH/2 + 80, 370, 140, 70, COLORS.cometPurple, '#BB00FF');
-        }
-
-        // Game over screen
-        function drawGameOver() {
-            drawStarfield();
-            
-            // Determine winner by score
-            let victory = false;
-            let message = '';
-            
-            if (playerScore > opponentScore) {
-                victory = true;
-                message = 'VICTORY!';
-            } else if (opponentScore > playerScore) {
-                victory = false;
-                message = 'DEFEAT!';
-            } else {
-                message = 'DRAW!';
-            }
-            
-            const color = victory ? '#00FF00' : (message === 'DRAW!' ? '#FFFF00' : '#FF0000');
-            
-            drawPixelText(message, BASE_WIDTH/2, 150, 24, color);
-            
-            // Show final scores
-            drawPixelText(`Your Score: ${playerScore}`, BASE_WIDTH/2, 220, 12, '#fff');
-            drawPixelText(`Enemy Score: ${opponentScore}`, BASE_WIDTH/2, 250, 12, '#fff');
-            
-            drawButton('Play Again', BASE_WIDTH/2, 350, 240, 60, COLORS.laserRed, '#FF3388');
-            
-            // Play More Games link
-            drawPixelText('Play More Games!', BASE_WIDTH/2, 480, 10, '#00DDFF');
-        }
-
-        // Gameplay
-        function startGame(faction) {
-            playerFaction = faction;
-            gameState = STATE.PLAYING;
-            playerScore = 0;
-            opponentScore = 0;
-            gameTimer = 0;
-            playerProjectiles = [];
-            opponentProjectiles = [];
-            explosions = [];
-            playerFlares = [];
-            opponentFlares = [];
-            playerNukes = [];
-            playerCharging = false;
-            playerChargeTime = 0;
-            
-            // Position player and opponent
-            if (faction === 'earth') {
-                playerY = BASE_HEIGHT / 2;
-                opponentY = BASE_HEIGHT / 2;
-            } else {
-                playerY = BASE_HEIGHT / 2;
-                opponentY = BASE_HEIGHT / 2;
-            }
-        }
-
-        function fireNuke() {
-            initAudio();
-            playNukeLaunchSound();
-            
-            const startX = 80;
-            const startY = BASE_HEIGHT / 2;
-            const targetX = BASE_WIDTH - 80;
-            const targetY = opponentY;
-            
-            // Calculate arc trajectory toward opponent
-            const dx = targetX - startX;
-            const dy = targetY - startY;
-            
-            playerNukes.push({
-                x: startX,
-                y: startY,
-                vx: dx / 50, // Horizontal speed to reach target
-                vy: -6 // Initial upward velocity for arc
+            q.answers.forEach((answer, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = answer.text;
+                btn.onclick = () => selectAnswer(answer);
+                answersContainer.appendChild(btn);
             });
         }
 
-        function detonateNuke() {
-            // Detonate oldest nuke (first in array)
-            if (playerNukes.length === 0) return;
+        function selectAnswer(answer) {
+            energy += answer.energy;
+            drive += answer.drive;
+            alignment += answer.alignment;
             
-            const nuke = playerNukes.shift(); // Remove and get first nuke
-            createExplosion(nuke.x, nuke.y, 50, COLORS.nukeOrange);
-            checkNukeDamage(nuke.x, nuke.y);
-        }
-
-        function fireLaser() {
-            initAudio();
-            playLaserSound();
-            
-            playerProjectiles.push({
-                type: 'laser',
-                x: 80,
-                y: playerY,
-                vx: 8,
-                vy: 0
-            });
-        }
-
-        function fireFlare() {
-            initAudio();
-            playFlareSound();
-            
-            // Create multiple flare zones in an arc to the right of Earth
-            const earthX = 80;
-            const earthY = BASE_HEIGHT / 2;
-            
-            for (let i = 0; i < 3; i++) {
-                const angle = (Math.PI / 6) * (i - 1); // -30, 0, +30 degrees
-                const distance = 60;
-                playerFlares.push({
-                    x: earthX + Math.cos(angle) * distance,
-                    y: earthY + Math.sin(angle) * distance,
-                    timer: 0,
-                    maxTimer: 90
-                });
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else {
+                calculateCards();
             }
         }
 
-        function startPlasmaCharge() {
-            playerCharging = true;
-            playerChargeTime = 0;
+        function calculateCards() {
+            const pos = (x) => Math.max(0, x);
+            const neg = (x) => Math.max(0, -x);
+            const abs = Math.abs;
+
+            const cards = [
+                { id: 'catalyst', score: pos(drive) * 2 + pos(energy) },
+                { id: 'mirror', score: abs(energy) + abs(alignment) + 1 },
+                { id: 'tower', score: abs(energy) * 2 + (drive <= 0 ? 3 : 0) },
+                { id: 'pilgrim', score: neg(drive) * 2 + neg(energy) + (alignment > 0 ? 1 : 0) },
+                { id: 'crown', score: pos(drive) + pos(alignment) * 2 },
+                { id: 'veil', score: abs(alignment) * 2 + pos(energy) },
+                { id: 'serpent', score: pos(energy) * 2 + neg(alignment) * 2 + (drive > 0 ? 1 : 0) },
+                { id: 'loom', score: pos(alignment) * 2 + (drive > 0 ? 1 : 0) }
+            ];
+
+            cards.sort((a, b) => b.score - a.score);
+            drawnCards = cards.slice(0, 3);
+            
+            currentCardIndex = 0;
+            showCardReveal();
         }
 
-        function releasePlasma() {
-            if (!playerCharging) return;
+        function showCardReveal() {
+            showScreen('cardScreen');
             
-            initAudio();
-            playPlasmaSound();
+            const card = cardData[drawnCards[currentCardIndex].id];
+            const cardElement = document.getElementById('cardElement');
             
-            const chargeRatio = Math.min(playerChargeTime / 30, 1);
-            const power = 4 + chargeRatio * 4;
+            // Reset card
+            cardElement.classList.remove('flipped');
+            document.getElementById('dialogueBox').style.display = 'none';
+            document.getElementById('cardActionBtn').style.display = 'none';
             
-            playerProjectiles.push({
-                type: 'plasma',
-                x: 80,
-                y: playerY,
-                vx: power,
-                vy: -3 - chargeRatio * 2,
-                gravity: 0.15
-            });
+            // Set card front content
+            document.getElementById('cardFrontImage').src = card.image;
+            document.getElementById('cardTitle').textContent = card.title;
+            document.getElementById('cardTagline').textContent = card.tagline;
             
-            playerCharging = false;
-            playerChargeTime = 0;
+            // Flip card after delay
+            setTimeout(() => {
+                cardElement.classList.add('flipped');
+                setTimeout(() => {
+                    showDialogue(card.zaraOneLiner, 'Hear More');
+                }, 600);
+            }, 500);
         }
 
-        function createExplosion(x, y, radius, color) {
-            initAudio();
-            playExplosionSound();
+        function showDialogue(text, btnText) {
+            const dialogueText = document.getElementById('dialogueText');
+            const dialogueBox = document.getElementById('dialogueBox');
+            const actionBtn = document.getElementById('cardActionBtn');
             
-            explosions.push({
-                x, y, radius, color,
-                timer: 0,
-                maxTimer: 20
-            });
+            dialogueText.textContent = '';
+            dialogueBox.style.display = 'block';
+            actionBtn.style.display = 'none';
             
-            // Screen shake
-            canvas.style.transform = `translate(${Math.random() * 4 - 2}px, ${Math.random() * 4 - 2}px)`;
-            setTimeout(() => canvas.style.transform = '', 100);
-        }
-
-        function checkNukeDamage(x, y) {
-            const opX = BASE_WIDTH - 80;
-            const opY = playerFaction === 'earth' ? opponentY : BASE_HEIGHT / 2;
-            const dist = Math.sqrt((x - opX) ** 2 + (y - opY) ** 2);
-            
-            // Check if in opponent's flare protection (defender's flares)
-            let inFlare = false;
-            for (let flare of opponentFlares) {
-                const flareDist = Math.sqrt((x - flare.x) ** 2 + (y - flare.y) ** 2);
-                if (flareDist < 40) {
-                    inFlare = true;
-                    break;
-                }
-            }
-            
-            let points = 0;
-            if (dist < 30) {
-                points = 10; // Direct hit
-            } else if (dist < 50) {
-                points = 5; // Indirect blast
-            }
-            
-            // Flare reduces points by 2
-            if (inFlare && points > 0) {
-                points = Math.max(0, points - 2);
-            }
-            
-            playerScore += points;
-        }
-
-        function checkOpponentNukeDamage(x, y) {
-            const playerX = 80;
-            const targetY = playerFaction === 'earth' ? BASE_HEIGHT / 2 : playerY;
-            const dist = Math.sqrt((x - playerX) ** 2 + (y - targetY) ** 2);
-            
-            // Check if in player's flare protection (defender's flares)
-            let inFlare = false;
-            for (let flare of playerFlares) {
-                const flareDist = Math.sqrt((x - flare.x) ** 2 + (y - flare.y) ** 2);
-                if (flareDist < 40) {
-                    inFlare = true;
-                    break;
-                }
-            }
-            
-            let points = 0;
-            if (dist < 40) {
-                points = 10; // Direct hit - increased from 30
-            } else if (dist < 70) {
-                points = 5; // Indirect blast - increased from 50
-            }
-            
-            // Flare reduces points by 2
-            if (inFlare && points > 0) {
-                points = Math.max(0, points - 2);
-            }
-            
-            opponentScore += points;
-        }
-
-        function checkProjectileHit(proj, targetX, targetY, isPlayerProjectile) {
-            const dist = Math.sqrt((proj.x - targetX) ** 2 + (proj.y - targetY) ** 2);
-            
-            // Check defender's flare protection
-            const defendingFlares = isPlayerProjectile ? opponentFlares : playerFlares;
-            let inFlare = false;
-            for (let flare of defendingFlares) {
-                const flareDist = Math.sqrt((proj.x - flare.x) ** 2 + (proj.y - flare.y) ** 2);
-                if (flareDist < 40) {
-                    inFlare = true;
-                    break;
-                }
-            }
-            
-            if (proj.type === 'laser') {
-                if (dist < 25) {
-                    createExplosion(proj.x, proj.y, 20, COLORS.laserRed);
-                    let points = 3; // Laser hit
-                    if (inFlare) {
-                        points = Math.max(0, points - 2); // Flare reduces by 2
-                    }
-                    // Award points to whoever shot it
-                    if (isPlayerProjectile) {
-                        playerScore += points;
-                    } else {
-                        opponentScore += points;
-                    }
-                    return true;
-                }
-            } else if (proj.type === 'plasma') {
-                if (dist < 30) {
-                    createExplosion(proj.x, proj.y, 35, COLORS.plasmaGreen);
-                    let points = 15; // Plasma hit
-                    if (inFlare) {
-                        points = Math.max(0, points - 2); // Flare reduces by 2
-                    }
-                    // Award points to whoever shot it
-                    if (isPlayerProjectile) {
-                        playerScore += points;
-                    } else {
-                        opponentScore += points;
-                    }
-                    return true;
-                }
-            } else if (proj.type === 'nuke') {
-                // Handled separately
-            }
-            
-            return false;
-        }
-
-        // AI behavior
-        function updateOpponentAI() {
-            opponentAttackTimer++;
-            opponentMoveTimer++;
-            
-            if (playerFaction === 'earth') {
-                // Opponent is comet - fires lasers and plasma
-                // More erratic drift up/down
-                if (opponentMoveTimer % 60 < 30) {
-                    opponentY += 1.2; // Faster movement
+            // Typewriter effect
+            let i = 0;
+            const speed = 30;
+            function typeWriter() {
+                if (i < text.length) {
+                    dialogueText.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, speed);
                 } else {
-                    opponentY -= 1.2;
+                    actionBtn.textContent = btnText;
+                    actionBtn.style.display = 'inline-block';
                 }
-                opponentY = Math.max(100, Math.min(BASE_HEIGHT - 200, opponentY));
-                
-                // Fire laser - reduced by 20% (45 -> 56 frames)
-                if (opponentAttackTimer % 56 === 0) {
-                    playLaserSound();
-                    opponentProjectiles.push({
-                        type: 'laser',
-                        x: BASE_WIDTH - 80,
-                        y: opponentY,
-                        vx: -8,
-                        vy: 0
-                    });
-                }
-                
-                // Fire plasma blob - reduced by 20% (85 -> 106 frames)
-                if (opponentAttackTimer % 106 === 0) {
-                    playPlasmaSound();
-                    opponentProjectiles.push({
-                        type: 'plasma',
-                        x: BASE_WIDTH - 80,
-                        y: opponentY,
-                        vx: -5,
-                        vy: -4,
-                        gravity: 0.15
-                    });
-                }
+            }
+            typeWriter();
+        }
+
+        function cardAction() {
+            const card = cardData[drawnCards[currentCardIndex].id];
+            const dialogueText = document.getElementById('dialogueText');
+            
+            if (dialogueText.textContent === card.zaraOneLiner) {
+                // Show full reading
+                showDialogue(card.zaraReading, currentCardIndex < 2 ? 'Next Card' : 'Final Reading');
             } else {
-                // Opponent is earth - fires nukes and flares
-                // Slow drift left/right
-                if (opponentMoveTimer % 180 < 90) {
-                    // Slight movement would be here but Earth stays mostly stationary
-                }
-                
-                // Calculate time progression once for this AI update
-                const timeElapsed = gameTimer / 60; // in seconds
-                const timeProgress = Math.min(timeElapsed / 30, 1); // 0 to 1 over 30 seconds
-                
-                // Fire nuke with escalating aggression based on time elapsed
-                // Starts slow, becomes aggressive by 30 seconds
-                // Reduced by 20% from original
-                
-                // Escalating fire rate: starts at 1.6% chance, ramps up to 9.6% by 30 seconds (was 2% -> 12%)
-                const baseFireRate = 0.016 + (timeProgress * 0.08); // 1.6% -> 9.6%
-                const shouldFireNuke = Math.random() < baseFireRate;
-                
-                if (shouldFireNuke) {
-                    playNukeLaunchSound();
-                    
-                    const startX = BASE_WIDTH - 80;
-                    const startY = BASE_HEIGHT / 2;
-                    const targetX = 80;
-                    const targetY = playerFaction === 'comet' ? playerY : BASE_HEIGHT / 2;
-                    
-                    // Calculate trajectory to reach target
-                    const distance = Math.abs(targetX - startX);
-                    const heightDiff = targetY - startY;
-                    
-                    // Less randomness as time goes on - more precise aiming
-                    const aimPrecision = 1 - (timeProgress * 0.6); // 1.0 -> 0.4
-                    const vxVariation = (-0.5 + Math.random() * 1.0) * aimPrecision;
-                    const vyVariation = (-0.5 + Math.random() * 1.0) * aimPrecision;
-                    
-                    const nuke = {
-                        type: 'nuke',
-                        x: startX,
-                        y: startY,
-                        vx: -5.5 + vxVariation,
-                        vy: -5 - (heightDiff / 80) + vyVariation,
-                        detonateTimer: 70 + Math.floor(Math.random() * 15),
-                        // Store time progress for smarter detonation
-                        smartDetonate: timeProgress > 0.5 // After 15 seconds, use smart detonation
-                    };
-                    opponentProjectiles.push(nuke);
-                }
-                
-                // Launch flare with escalating frequency
-                // Flare interval: starts every 60 frames, ramps to every 36 frames (was 50 -> 30, now 20% slower)
-                const flareInterval = Math.floor(60 - (timeProgress * 24)); // 60 -> 36
-                
-                if (opponentAttackTimer % flareInterval === 0) {
-                    playFlareSound();
-                    
-                    const earthX = BASE_WIDTH - 80;
-                    const earthY = BASE_HEIGHT / 2;
-                    
-                    for (let i = 0; i < 3; i++) {
-                        const angle = Math.PI + (Math.PI / 6) * (i - 1); // Mirror for right side
-                        const distance = 60;
-                        opponentFlares.push({
-                            x: earthX + Math.cos(angle) * distance,
-                            y: earthY + Math.sin(angle) * distance,
-                            timer: 0,
-                            maxTimer: 90
-                        });
-                    }
-                }
-            }
-        }
-
-        function updateGame() {
-            gameTimer++;
-            
-            // Check if time expired - winner is whoever dealt more damage
-            if (gameTimer >= GAME_DURATION) {
-                gameState = STATE.GAME_OVER;
-                return;
-            }
-            
-            // Update opponent AI
-            updateOpponentAI();
-            
-            // Update player nukes (for Earth)
-            for (let i = playerNukes.length - 1; i >= 0; i--) {
-                const nuke = playerNukes[i];
-                nuke.x += nuke.vx;
-                nuke.y += nuke.vy;
-                nuke.vy += 0.3; // gravity
-                
-                // Auto-detonate if off screen
-                if (nuke.x > BASE_WIDTH || nuke.y > BASE_HEIGHT || nuke.x < 0 || nuke.y < 0) {
-                    createExplosion(nuke.x, nuke.y, 50, COLORS.nukeOrange);
-                    checkNukeDamage(nuke.x, nuke.y);
-                    playerNukes.splice(i, 1);
-                }
-            }
-            
-            // Update player charging
-            if (playerCharging) {
-                playerChargeTime++;
-            }
-            
-            // Update player projectiles
-            for (let i = playerProjectiles.length - 1; i >= 0; i--) {
-                const proj = playerProjectiles[i];
-                proj.x += proj.vx;
-                proj.y += proj.vy;
-                
-                if (proj.gravity) {
-                    proj.vy += proj.gravity;
-                }
-                
-                // Check hit on opponent
-                const opX = BASE_WIDTH - 80;
-                const opY = opponentY;
-                if (checkProjectileHit(proj, opX, opY, true)) {
-                    playerProjectiles.splice(i, 1);
-                    continue;
-                }
-                
-                // Remove if off screen
-                if (proj.x > BASE_WIDTH || proj.y > BASE_HEIGHT || proj.x < 0 || proj.y < 0) {
-                    playerProjectiles.splice(i, 1);
-                }
-            }
-            
-            // Update opponent projectiles
-            for (let i = opponentProjectiles.length - 1; i >= 0; i--) {
-                const proj = opponentProjectiles[i];
-                proj.x += proj.vx;
-                proj.y += proj.vy;
-                
-                if (proj.gravity) {
-                    proj.vy += proj.gravity;
-                }
-                
-                // Nukes also have gravity
-                if (proj.type === 'nuke') {
-                    proj.vy += 0.3; // Apply gravity to nukes
-                    
-                    // Opponent Earth detonates nukes when close to player (only when player is Comet)
-                    if (playerFaction === 'comet') {
-                        const playerX = 80;
-                        const distToPlayer = Math.sqrt((proj.x - playerX) ** 2 + (proj.y - playerY) ** 2);
-                        
-                        // Detonation distance gets smaller (more precise) with smart nukes
-                        if (!proj.detonationDistance) {
-                            if (proj.smartDetonate) {
-                                // Late game: very precise, direct hits
-                                proj.detonationDistance = 20 + Math.random() * 25; // 20-45 pixels
-                            } else {
-                                // Early game: more lenient
-                                proj.detonationDistance = 30 + Math.random() * 30; // 30-60 pixels
-                            }
-                        }
-                        
-                        // Track if we're getting closer or moving away
-                        if (!proj.lastDist) proj.lastDist = distToPlayer;
-                        const movingAway = distToPlayer > proj.lastDist;
-                        proj.lastDist = distToPlayer;
-                        
-                        // Smart nukes detonate at optimal moment
-                        if (proj.smartDetonate) {
-                            // Late game: detonate RIGHT at closest approach for maximum direct hits
-                            const shouldDetonate = 
-                                distToPlayer < proj.detonationDistance || 
-                                (movingAway && distToPlayer < 50) || // Detonate immediately when starting to move away
-                                proj.x < 25 || 
-                                proj.detonateTimer < 3;
-                            
-                            if (shouldDetonate) {
-                                createExplosion(proj.x, proj.y, 50, COLORS.nukeOrange);
-                                checkOpponentNukeDamage(proj.x, proj.y);
-                                opponentProjectiles.splice(i, 1);
-                                continue;
-                            }
-                        } else {
-                            // Early game: standard detonation
-                            const shouldDetonate = 
-                                distToPlayer < proj.detonationDistance || 
-                                (movingAway && distToPlayer < 80) ||
-                                proj.x < 30 || 
-                                proj.detonateTimer < 5;
-                            
-                            if (shouldDetonate) {
-                                createExplosion(proj.x, proj.y, 50, COLORS.nukeOrange);
-                                checkOpponentNukeDamage(proj.x, proj.y);
-                                opponentProjectiles.splice(i, 1);
-                                continue;
-                            }
-                        }
-                    } else {
-                        // When player is Earth, auto-detonate based on timer only
-                        proj.detonateTimer--;
-                        if (proj.detonateTimer <= 0) {
-                            createExplosion(proj.x, proj.y, 50, COLORS.nukeOrange);
-                            checkOpponentNukeDamage(proj.x, proj.y);
-                            opponentProjectiles.splice(i, 1);
-                            continue;
-                        }
-                    }
-                }
-                
-                // Nuke timer countdown (for comet mode)
-                if (proj.type === 'nuke' && playerFaction === 'comet') {
-                    proj.detonateTimer--;
-                }
-                
-                // Check hit on player
-                const playerX = 80;
-                const targetY = playerFaction === 'earth' ? BASE_HEIGHT / 2 : playerY;
-                if (checkProjectileHit(proj, playerX, targetY, false)) {
-                    opponentProjectiles.splice(i, 1);
-                    continue;
-                }
-                
-                // Remove if off screen
-                if (proj.x < 0 || proj.y > BASE_HEIGHT || proj.x > BASE_WIDTH || proj.y < 0) {
-                    opponentProjectiles.splice(i, 1);
-                }
-            }
-            
-            // Update explosions
-            for (let i = explosions.length - 1; i >= 0; i--) {
-                explosions[i].timer++;
-                if (explosions[i].timer >= explosions[i].maxTimer) {
-                    explosions.splice(i, 1);
-                }
-            }
-            
-            // Update player flares
-            for (let i = playerFlares.length - 1; i >= 0; i--) {
-                playerFlares[i].timer++;
-                if (playerFlares[i].timer >= playerFlares[i].maxTimer) {
-                    playerFlares.splice(i, 1);
-                }
-            }
-            
-            // Update opponent flares
-            for (let i = opponentFlares.length - 1; i >= 0; i--) {
-                opponentFlares[i].timer++;
-                if (opponentFlares[i].timer >= opponentFlares[i].maxTimer) {
-                    opponentFlares.splice(i, 1);
-                }
-            }
-            
-            // Game ends only when timer expires (no HP checks)
-        }
-
-        function drawGame() {
-            drawStarfield();
-            
-            // Draw flares first (background)
-            playerFlares.forEach(drawFlare);
-            opponentFlares.forEach(drawFlare);
-            
-            // Draw player
-            const playerX = 80;
-            if (playerFaction === 'earth') {
-                drawEarth(playerX, BASE_HEIGHT / 2, 35);
-            } else {
-                drawComet(playerX, playerY, 35);
-            }
-            
-            // Draw opponent
-            const opponentX = BASE_WIDTH - 80;
-            if (playerFaction === 'earth') {
-                drawComet(opponentX, opponentY, 35);
-            } else {
-                drawEarth(opponentX, BASE_HEIGHT / 2, 35); // Earth is always at center
-            }
-            
-            // Draw player nukes
-            playerNukes.forEach(nuke => {
-                ctx.fillStyle = COLORS.nukeOrange;
-                ctx.fillRect(nuke.x - 6, nuke.y - 6, 12, 12);
-                ctx.strokeStyle = '#FF9933';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(nuke.x - 6, nuke.y - 6, 12, 12);
-            });
-            
-            // Draw projectiles
-            playerProjectiles.forEach(drawProjectile);
-            opponentProjectiles.forEach(drawProjectile);
-            
-            // Draw explosions
-            explosions.forEach(drawExplosion);
-            
-            // Draw HUD and controls
-            drawHUD();
-            drawControls();
-        }
-
-        // Main render loop
-        function render() {
-            ctx.clearRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
-            
-            if (gameState === STATE.TITLE) {
-                drawTitleScreen();
-            } else if (gameState === STATE.FACTION_SELECT) {
-                drawFactionSelect();
-            } else if (gameState === STATE.PLAYING) {
-                updateGame();
-                drawGame();
-            } else if (gameState === STATE.GAME_OVER) {
-                drawGameOver();
-            }
-            
-            requestAnimationFrame(render);
-        }
-
-        // Touch/click handlers
-        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-        canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-        canvas.addEventListener('mousedown', handleMouseDown);
-        canvas.addEventListener('mouseup', handleMouseUp);
-
-        function getTouchPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0] || e.changedTouches[0];
-            return {
-                x: (touch.clientX - rect.left) / scale,
-                y: (touch.clientY - rect.top) / scale
-            };
-        }
-
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: (e.clientX - rect.left) / scale,
-                y: (e.clientY - rect.top) / scale
-            };
-        }
-
-        function handleTouchStart(e) {
-            e.preventDefault();
-            const pos = getTouchPos(e);
-            handleInput(pos, 'start');
-            touchStartY = pos.y;
-            touchStartTime = Date.now();
-        }
-
-        function handleTouchMove(e) {
-            e.preventDefault();
-            if (gameState === STATE.PLAYING) {
-                const pos = getTouchPos(e);
-                const deltaY = touchStartY - pos.y; // Positive means swipe up
-                
-                if (playerFaction === 'comet') {
-                    // Comet swipe movement
-                    playerY += (pos.y - touchStartY) * 0.3;
-                    playerY = Math.max(100, Math.min(BASE_HEIGHT - 200, playerY));
-                    touchStartY = pos.y;
-                } else if (playerFaction === 'earth') {
-                    // Earth swipe up for flare
-                    if (deltaY > 50) { // Swipe up threshold
-                        fireFlare();
-                        touchStartY = pos.y; // Reset to prevent multiple fires
-                    }
-                }
-            }
-        }
-
-        function handleTouchEnd(e) {
-            e.preventDefault();
-            const pos = getTouchPos(e);
-            handleInput(pos, 'end');
-        }
-
-        function handleMouseDown(e) {
-            const pos = getMousePos(e);
-            handleInput(pos, 'start');
-        }
-
-        function handleMouseUp(e) {
-            const pos = getMousePos(e);
-            handleInput(pos, 'end');
-        }
-
-        function handleInput(pos, phase) {
-            const controlY = BASE_HEIGHT - 90;
-            
-            if (gameState === STATE.TITLE) {
-                // Launch button - calls launchGame function
-                if (pos.y > 365 && pos.y < 435 && pos.x > 47.5 && pos.x < 327.5 && phase === 'start') {
-                    launchGame();
-                }
-            } else if (gameState === STATE.FACTION_SELECT) {
-                // Earth button (left)
-                if (pos.y > 335 && pos.y < 405 && pos.x > 10 && pos.x < 150 && phase === 'start') {
-                    startGame('earth');
-                }
-                // Comet button (right)
-                if (pos.y > 335 && pos.y < 405 && pos.x > 225 && pos.x < 375 && phase === 'start') {
-                    startGame('comet');
-                }
-            } else if (gameState === STATE.PLAYING) {
-                if (playerFaction === 'earth') {
-                    // Nuke button (left)
-                    if (pos.x < 145 && pos.y > controlY - 30 && pos.y < controlY + 30) {
-                        if (phase === 'start') {
-                            fireNuke();
-                        }
-                    }
-                    // Detonate button (right)
-                    if (pos.x > 230 && pos.y > controlY - 30 && pos.y < controlY + 30) {
-                        if (phase === 'start') {
-                            detonateNuke();
-                        }
-                    }
+                // Move to next card or final reading
+                if (currentCardIndex < 2) {
+                    currentCardIndex++;
+                    showCardReveal();
                 } else {
-                    // Laser button (left)
-                    if (pos.x < 145 && pos.y > controlY - 30 && pos.y < controlY + 30) {
-                        if (phase === 'start') {
-                            fireLaser();
-                        }
-                    }
-                    // Plasma button (right) - long press
-                    if (pos.x > 230 && pos.y > controlY - 30 && pos.y < controlY + 30) {
-                        if (phase === 'start') {
-                            startPlasmaCharge();
-                        } else if (phase === 'end') {
-                            releasePlasma();
-                        }
-                    }
-                }
-            } else if (gameState === STATE.GAME_OVER) {
-                // Play again button
-                if (pos.y > 320 && pos.y < 380 && pos.x > 67.5 && pos.x < 307.5 && phase === 'start') {
-                    // Stop music for restart
-                    if (bgMusic) {
-                        bgMusic.pause();
-                        bgMusic.currentTime = 0;
-                    }
-                    gameState = STATE.TITLE;
-                }
-                // Play More Games link
-                if (pos.y > 465 && pos.y < 495 && phase === 'start') {
-                    window.location.href = 'https://www.neon-bread.com';
+                    showFinalReading();
                 }
             }
         }
 
-        // Start the game loop
-        render();
+        function showFinalReading() {
+            showScreen('finalScreen');
+            
+            // Determine dominant stat
+            let dominant = 'energy';
+            let intro = "Your year is ruled by raw energy. You'll feel everything too loudly and move faster than your sense of judgment.";
+            
+            if (drive >= energy && drive >= alignment) {
+                dominant = 'drive';
+                intro = "This year is about action. The universe is tired of your planning phase and will start grading you on execution.";
+            } else if (alignment >= energy && alignment >= drive) {
+                if (alignment >= 0) {
+                    dominant = 'alignment';
+                    intro = "Your connections run the show. Who you attach yourself to in 2026 matters more than what you think you 'deserve'.";
+                } else {
+                    intro = "You'll be painfully aware that you're your own main character. The problem is, everyone else still exists.";
+                }
+            }
+            
+            const card1 = cardData[drawnCards[0].id];
+            const card2 = cardData[drawnCards[1].id];
+            const card3 = cardData[drawnCards[2].id];
+            
+            const finalText = `
+                <p>${intro}</p>
+                
+                <p>The first card, <strong>${card1.title}</strong>, says ${card1.summary} — this is how you walk into 2026.</p>
+                
+                <p>The second card, <strong>${card2.title}</strong>, marks the main mess you'll have to manage: ${card2.summary}.</p>
+                
+                <p>The final card, <strong>${card3.title}</strong>, shows where you land if you don't completely sabotage yourself: ${card3.summary}.</p>
+                
+                <p>You can listen, adjust, and make this easier. Or you can ignore it and give me something hilarious to say about you next year. Your move.</p>
+            `;
+            
+            document.getElementById('finalReading').innerHTML = finalText;
+        }
+
+        function restart() {
+            energy = 0;
+            drive = 0;
+            alignment = 0;
+            currentQuestion = 0;
+            drawnCards = [];
+            currentCardIndex = 0;
+            
+            if (bgMusic) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+            }
+            
+            showScreen('introScreen');
+        }
     </script>
 </body>
 </html>
